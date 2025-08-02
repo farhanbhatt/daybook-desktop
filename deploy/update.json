@@ -1,0 +1,13 @@
+{
+  "version": "1.0.2",
+  "releaseDate": "2025-08-02",
+  "downloadUrl": "https://grand-malabi-6a9c6a.netlify.app/download.html",
+  "releaseNotes": [
+    "Bug fixes and performance improvements",
+    "Enhanced PDF export functionality",
+    "Better error handling",
+    "UI/UX improvements"
+  ],
+  "mandatory": false,
+  "minVersion": "1.0.0"
+}

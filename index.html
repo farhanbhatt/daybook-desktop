@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daybook - Financial Records Manager</title>
+    
+    <!-- Content Security Policy for Electron - Relaxed for debugging -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self' 'unsafe-inline' 'unsafe-eval';
+        script-src 'self' 'unsafe-inline' 'unsafe-eval';
+        style-src 'self' 'unsafe-inline';
+        img-src 'self' data:;
+        connect-src 'self';
+        font-src 'self';
+        object-src 'none';
+        base-uri 'self';
+        form-action 'self';
+    ">
+    
+    <link rel="stylesheet" href="style.css">
+    <!-- PDF and Excel export libraries - Local files -->
+    <script src="libs/jspdf.umd.min.js"></script>
+    <script src="libs/jspdf.plugin.autotable.min.js"></script>
+    <script src="libs/xlsx.full.min.js"></script>
+    <script>
+        // Debug library loading
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded - checking libraries:');
+            console.log('jsPDF available:', typeof window.jsPDF !== 'undefined');
+            console.log('XLSX available:', typeof window.XLSX !== 'undefined');
+            if (typeof window.jsPDF !== 'undefined') {
+                console.log('jsPDF object:', window.jsPDF);
+            }
+        });
+    </script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="app-header">
+                <h1>₨ Daybook</h1>
+                <p>Financial Records Manager</p>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#" data-section="dashboard" class="nav-link active">Dashboard</a></li>
+                <li><a href="#" data-section="income" class="nav-link">Income</a></li>
+                <li><a href="#" data-section="expense" class="nav-link">Expense</a></li>
+                <li><a href="#" data-section="add-entry" class="nav-link">Add Entry</a></li>
+                <li><a href="#" data-section="accounts" class="nav-link">Accounts</a></li>
+                <li><a href="#" data-section="ledger" class="nav-link">Ledger</a></li>
+                <li><a href="#" data-section="profit-loss" class="nav-link">Profit & Loss</a></li>
+                <li><a href="#" data-section="categories" class="nav-link">Categories</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="section active">
+                <div class="section-header">
+                    <h2>Dashboard</h2>
+                    <div class="date-display">
+                        <span id="current-date"></span>
+                    </div>
+                </div>
+                
+                <div class="dashboard-cards">
+                    <div class="summary-card income-card">
+                        <div class="card-icon">📈</div>
+                        <div class="card-content">
+                            <h3>Today's Income</h3>
+                            <p class="amount" id="today-income">₨ 0.00</p>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-card expense-card">
+                        <div class="card-icon">📉</div>
+                        <div class="card-content">
+                            <h3>Today's Expense</h3>
+                            <p class="amount" id="today-expense">₨ 0.00</p>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-card balance-card">
+                        <div class="card-icon">💰</div>
+                        <div class="card-content">
+                            <h3>Net Balance</h3>
+                            <p class="amount" id="net-balance">₨ 0.00</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recent-transactions">
+                    <h3>Recent Transactions</h3>
+                    <div class="transactions-list" id="recent-transactions">
+                        <!-- Recent transactions will be populated here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Income Section -->
+            <section id="income" class="section">
+                <div class="section-header">
+                    <h2>Income Records</h2>
+                    <div class="filters">
+                        <input type="date" id="income-date-filter" class="filter-input">
+                        <select id="income-category-filter" class="filter-select">
+                            <option value="">All Categories</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Category</th>
+                                <th>Amount (PKR)</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="income-table-body">
+                            <!-- Income entries will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Expense Section -->
+            <section id="expense" class="section">
+                <div class="section-header">
+                    <h2>Expense Records</h2>
+                    <div class="filters">
+                        <input type="date" id="expense-date-filter" class="filter-input">
+                        <select id="expense-category-filter" class="filter-select">
+                            <option value="">All Categories</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Category</th>
+                                <th>Amount (PKR)</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="expense-table-body">
+                            <!-- Expense entries will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Add Entry Section -->
+            <section id="add-entry" class="section">
+                <div class="section-header">
+                    <h2>Add New Entry</h2>
+                </div>
+                
+                <div class="form-container">
+                    <div class="entry-type-toggle">
+                        <button id="income-toggle" class="toggle-btn active">Income</button>
+                        <button id="expense-toggle" class="toggle-btn">Expense</button>
+                    </div>
+                    
+                    <form id="entry-form" class="entry-form">
+                        <div class="form-group">
+                            <label for="entry-date">Date</label>
+                            <input type="date" id="entry-date" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="entry-category">Category</label>
+                            <select id="entry-category" required>
+                                <option value="">Select Category</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="entry-amount">Amount (PKR)</label>
+                            <input type="number" id="entry-amount" step="0.01" min="0" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="entry-description">Description</label>
+                            <textarea id="entry-description" rows="3"></textarea>
+                        </div>
+                        
+                        <button type="submit" class="save-btn">Save Entry</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Accounts Section -->
+            <section id="accounts" class="section">
+                <div class="section-header">
+                    <h2>Accounts Management</h2>
+                    <button id="add-account-btn" class="add-btn">Add Account Entry</button>
+                </div>
+                
+                <div class="account-summary">
+                    <div class="summary-card receivable-card">
+                        <div class="card-icon">📋</div>
+                        <div class="card-content">
+                            <h3>Total Receivables</h3>
+                            <p class="amount" id="total-receivables">₨ 0.00</p>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-card payable-card">
+                        <div class="card-icon">📄</div>
+                        <div class="card-content">
+                            <h3>Total Payables</h3>
+                            <p class="amount" id="total-payables">₨ 0.00</p>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-card net-account-card">
+                        <div class="card-icon">⚖️</div>
+                        <div class="card-content">
+                            <h3>Net Position</h3>
+                            <p class="amount" id="net-account-position">₨ 0.00</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accounts-container">
+                    <div class="account-type-tabs">
+                        <button id="receivables-tab" class="tab-btn active">Receivables (Debit)</button>
+                        <button id="payables-tab" class="tab-btn">Payables (Credit)</button>
+                    </div>
+                    
+                    <div class="accounts-filters">
+                        <input type="text" id="account-search" class="filter-input" placeholder="Search by name or description...">
+                        <select id="account-status-filter" class="filter-select">
+                            <option value="">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="partial">Partially Paid</option>
+                            <option value="paid">Paid</option>
+                        </select>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Party Name</th>
+                                    <th>Description</th>
+                                    <th>Original Amount</th>
+                                    <th>Paid Amount</th>
+                                    <th>Balance</th>
+                                    <th>Status</th>
+                                    <th>Due Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="accounts-table-body">
+                                <!-- Account entries will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Ledger Section -->
+            <section id="ledger" class="section">
+                <div class="section-header">
+                    <h2>Complete Ledger</h2>
+                    <div class="filters">
+                        <input type="date" id="ledger-date-from" class="filter-input" placeholder="From">
+                        <input type="date" id="ledger-date-to" class="filter-input" placeholder="To">
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Category</th>
+                                <th>Amount (PKR)</th>
+                                <th>Running Balance</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ledger-table-body">
+                            <!-- Ledger entries will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Profit & Loss Section -->
+            <section id="profit-loss" class="section">
+                <div class="section-header">
+                    <h2>Profit & Loss Statement</h2>
+                    <div class="filters">
+                        <input type="date" id="pl-date-from" class="filter-input">
+                        <input type="date" id="pl-date-to" class="filter-input">
+                        <button id="generate-pl" class="generate-btn">Generate Report</button>
+                    </div>
+                </div>
+                
+                <div class="pl-container">
+                    <div class="pl-summary">
+                        <div class="pl-card income-summary">
+                            <h3>Total Income</h3>
+                            <p class="amount" id="total-income">₨ 0.00</p>
+                        </div>
+                        
+                        <div class="pl-card expense-summary">
+                            <h3>Total Expenses</h3>
+                            <p class="amount" id="total-expenses">₨ 0.00</p>
+                        </div>
+                        
+                        <div class="pl-card net-summary">
+                            <h3>Net Profit/Loss</h3>
+                            <p class="amount" id="net-profit-loss">₨ 0.00</p>
+                        </div>
+                    </div>
+                    
+                    <div class="export-options">
+                        <button id="export-pdf" class="export-btn">Export as PDF</button>
+                        <button id="export-excel" class="export-btn">Export as Excel</button>
+                        <button id="export-backup" class="export-btn backup-btn">📥 Export Backup</button>
+                        <button id="import-backup" class="export-btn backup-btn">📤 Import Backup</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Categories Section -->
+            <section id="categories" class="section">
+                <div class="section-header">
+                    <h2>Manage Categories</h2>
+                    <button id="add-category-btn" class="add-btn">Add Category</button>
+                </div>
+                
+                <div class="categories-container">
+                    <div class="category-type-tabs">
+                        <button id="income-categories-tab" class="tab-btn active">Income Categories</button>
+                        <button id="expense-categories-tab" class="tab-btn">Expense Categories</button>
+                    </div>
+                    
+                    <div class="categories-list" id="categories-list">
+                        <!-- Categories will be populated here -->
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal for editing entries -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Edit Entry</h3>
+            <form id="edit-form">
+                <div class="form-group">
+                    <label for="edit-date">Date</label>
+                    <input type="date" id="edit-date" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-category">Category</label>
+                    <select id="edit-category" required></select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-amount">Amount (PKR)</label>
+                    <input type="number" id="edit-amount" step="0.01" min="0" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-description">Description</label>
+                    <textarea id="edit-description" rows="3"></textarea>
+                </div>
+                
+                <button type="submit" class="save-btn">Update Entry</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for adding categories -->
+    <div id="category-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Add Category</h3>
+            <form id="category-form">
+                <div class="form-group">
+                    <label for="category-name">Category Name</label>
+                    <input type="text" id="category-name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="category-type">Type</label>
+                    <select id="category-type" required>
+                        <option value="income">Income</option>
+                        <option value="expense">Expense</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="save-btn">Add Category</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for adding/editing account entries -->
+    <div id="account-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3 id="account-modal-title">Add Account Entry</h3>
+            <form id="account-form">
+                <div class="form-group">
+                    <label for="account-date">Date</label>
+                    <input type="date" id="account-date" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="account-type">Type</label>
+                    <select id="account-type" required>
+                        <option value="receivable">Receivable (Debit - Money to receive)</option>
+                        <option value="payable">Payable (Credit - Money to pay)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="account-party">Party Name</label>
+                    <input type="text" id="account-party" required placeholder="Customer/Supplier name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="account-amount">Amount (PKR)</label>
+                    <input type="number" id="account-amount" step="0.01" min="0" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="account-description">Description</label>
+                    <textarea id="account-description" rows="3" placeholder="Invoice details, purchase order, etc."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="account-due-date">Due Date (Optional)</label>
+                    <input type="date" id="account-due-date">
+                </div>
+                
+                <button type="submit" class="save-btn">Save Account Entry</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for recording payments -->
+    <div id="payment-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Record Payment</h3>
+            <form id="payment-form">
+                <div class="payment-info">
+                    <p><strong>Party:</strong> <span id="payment-party"></span></p>
+                    <p><strong>Original Amount:</strong> <span id="payment-original"></span></p>
+                    <p><strong>Already Paid:</strong> <span id="payment-already-paid"></span></p>
+                    <p><strong>Remaining Balance:</strong> <span id="payment-balance"></span></p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="payment-date">Payment Date</label>
+                    <input type="date" id="payment-date" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="payment-amount">Payment Amount (PKR)</label>
+                    <input type="number" id="payment-amount" step="0.01" min="0" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="payment-notes">Payment Notes</label>
+                    <textarea id="payment-notes" rows="2" placeholder="Payment method, reference number, etc."></textarea>
+                </div>
+                
+                <button type="submit" class="save-btn">Record Payment</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="./export.js"></script>
+    <script src="./app.js"></script>
+</body>
+</html>

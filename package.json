@@ -1,0 +1,83 @@
+{
+  "name": "daybook-desktop",
+  "version": "1.0.1",
+  "description": "Daybook Desktop - A comprehensive financial records management application for small businesses and personal use",
+  "main": "electron-main.js",
+  "author": {
+    "name": "Farhan",
+    "email": "farhan@example.com"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/farhan/daybook-desktop",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/farhan/daybook-desktop.git"
+  },
+  "keywords": [
+    "accounting",
+    "finance",
+    "bookkeeping",
+    "daybook",
+    "financial-records",
+    "small-business",
+    "desktop-app",
+    "electron"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "electron": "electron .",
+    "electron-dev": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && electron .\"",
+    "build-electron": "npm run build && electron-builder",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "com.daybook.desktop",
+    "productName": "Daybook Desktop",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "electron-main.js",
+      "preload.js",
+      "app.js",
+      "export.js",
+      "index.html",
+      "style.css",
+      "libs/**/*",
+      "package.json",
+      "node_modules/**/*"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Daybook Desktop",
+      "displayLanguageSelector": true,
+      "installerLanguages": ["en_US"]
+    },
+    "mac": {
+      "target": "dmg"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "electron": "^28.2.0",
+    "electron-builder": "^24.9.1",
+    "vite": "^7.0.4",
+    "wait-on": "^7.2.0"
+  },
+  "dependencies": {
+    "jspdf": "^3.0.1",
+    "jspdf-autotable": "^5.0.2",
+    "xlsx": "^0.18.5"
+  }
+}

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download Daybook Desktop</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            text-align: center;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .version-badge {
+            background: #007cba;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+        .download-options {
+            margin: 30px 0;
+        }
+        .download-btn {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .download-btn:hover {
+            background: #218838;
+        }
+        .download-btn.secondary {
+            background: #6c757d;
+        }
+        .download-btn.secondary:hover {
+            background: #5a6268;
+        }
+        .instructions {
+            text-align: left;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .instructions h3 {
+            margin-top: 0;
+            color: #495057;
+        }
+        .instructions ol {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .instructions li {
+            margin: 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Download Daybook Desktop</h1>
+        <div class="version-badge">Latest Version: 1.0.2</div>
+        
+        <p>Thank you for choosing Daybook Desktop! Your comprehensive financial management solution is ready to download.</p>
+        
+        <div class="download-options">
+            <h3>Download Options:</h3>
+            
+            <!-- If you have a direct installer link, use this -->
+            <a href="#" class="download-btn" onclick="handleDownload()">
+                💾 Download Installer (.exe)
+            </a>
+            
+            <!-- Alternative: Email/Contact option -->
+            <a href="mailto:farhan@example.com?subject=Daybook Desktop Download Request&body=Hi, I would like to download the latest version of Daybook Desktop (v1.0.2). Please send me the installer file." class="download-btn secondary">
+                📧 Request via Email
+            </a>
+        </div>
+        
+        <div class="instructions">
+            <h3>📋 Installation Instructions:</h3>
+            <ol>
+                <li>Download the installer file</li>
+                <li>Run the downloaded .exe file</li>
+                <li>Follow the installation wizard</li>
+                <li>Launch Daybook Desktop from your Start Menu</li>
+                <li>Start managing your finances!</li>
+            </ol>
+        </div>
+        
+        <div class="instructions">
+            <h3>🆕 What's New in v1.0.2:</h3>
+            <ul style="list-style: none; padding-left: 0;">
+                <li>✅ Bug fixes and performance improvements</li>
+                <li>✅ Enhanced PDF export functionality</li>
+                <li>✅ Better error handling</li>
+                <li>✅ UI/UX improvements</li>
+            </ul>
+        </div>
+        
+        <hr style="margin: 30px 0;">
+        
+        <p><strong>Need Help?</strong><br>
+        Contact us at: <a href="mailto:farhan@example.com">farhan@example.com</a></p>
+        
+        <p><a href="index.html">&larr; Back to Update Info</a></p>
+    </div>
+
+    <script>
+        function handleDownload() {
+            // For now, show instructions to user
+            alert("The installer download will be available soon!\n\nIn the meantime, you can:\n1. Contact us via email for the installer\n2. Check back later for direct download\n3. Build from source if you have the code");
+            
+            // Optional: You can replace this with a direct download link when you have the installer file
+            // window.location.href = 'path/to/your/installer.exe';
+        }
+    </script>
+</body>
+</html>

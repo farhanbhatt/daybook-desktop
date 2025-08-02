@@ -1,0 +1,14 @@
+{
+  "version": "1.0.3",
+  "releaseDate": "2025-08-02",
+  "downloadUrl": "https://golden-sorbet-3b1fc2.netlify.app/update-site.html",
+  "releaseNotes": [
+    "Latest update available",
+    "Bug fixes and performance improvements",
+    "Enhanced PDF export functionality",
+    "Better error handling",
+    "UI/UX improvements"
+  ],
+  "mandatory": false,
+  "minVersion": "1.0.0"
+}

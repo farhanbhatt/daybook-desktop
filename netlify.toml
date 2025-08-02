@@ -1,0 +1,17 @@
+[build]
+  publish = "."
+  command = "echo 'Static files ready'"
+
+[[headers]]
+  for = "/update.json"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET"
+    Access-Control-Allow-Headers = "Content-Type"
+    Cache-Control = "no-cache"
+
+# Redirect for update check endpoint
+[[redirects]]
+  from = "/api/update/check"
+  to = "/update.json"
+  status = 200

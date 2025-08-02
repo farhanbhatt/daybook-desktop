@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trial System Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            background: #f5f5f5;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover { background: #2980b9; }
+        .trial-info {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔬 Trial System Test Page</h1>
+    
+    <div class="test-section">
+        <h2>Trial System Status</h2>
+        <div id="trial-status" class="status info">Loading trial system...</div>
+        <div id="trial-details" class="trial-info"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Trial Actions</h2>
+        <button onclick="checkTrialStatus()">Check Trial Status</button>
+        <button onclick="showWelcomeDialog()">Show Welcome Dialog</button>
+        <button onclick="showActivationDialog()">Show Activation Dialog</button>
+        <button onclick="showTrialDialog()">Show Trial Reminder</button>
+        <button onclick="addTrialIndicator()">Add Trial Indicator</button>
+        <button onclick="clearTrialData()">Clear Trial Data (Reset)</button>
+    </div>
+
+    <div class="test-section">
+        <h2>Test License Keys</h2>
+        <div class="trial-info">
+            <p><strong>Demo Key:</strong> <code id="demo-key">Loading...</code></p>
+            <p><strong>Valid Keys:</strong></p>
+            <ul>
+                <li><code>DAYBOOK-PRO-2025-FULL</code></li>
+                <li><code>DB-PREMIUM-LICENSE-KEY</code></li>
+                <li><code>DAYBOOK-ACTIVATE-FULL</code></li>
+            </ul>
+        </div>
+        <button onclick="testActivation()">Test Activation with Demo Key</button>
+    </div>
+
+    <div class="test-section">
+        <h2>Feature Testing</h2>
+        <button onclick="testExportFeature()">Test Export Feature</button>
+        <button onclick="simulateTrialExpiry()">Simulate Trial Expiry</button>
+        <button onclick="restoreTrial()">Restore Trial</button>
+    </div>
+
+    <div class="test-section">
+        <h2>Console Output</h2>
+        <div id="console-output" style="background: black; color: #00ff00; padding: 10px; border-radius: 4px; height: 200px; overflow-y: auto; font-family: monospace;"></div>
+    </div>
+
+    <script src="trial.js"></script>
+    <script>
+        let trialManager;
+        const consoleOutput = document.getElementById('console-output');
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? '#ff4444' : type === 'success' ? '#44ff44' : '#00ff00';
+            consoleOutput.innerHTML += `<span style="color: ${color}">[${timestamp}] ${message}</span>\n`;
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+            console.log(message);
+        }
+
+        function initializeTrialSystem() {
+            try {
+                if (typeof TrialManager !== 'undefined') {
+                    trialManager = new TrialManager();
+                    log('✅ Trial system initialized successfully', 'success');
+                    updateTrialDisplay();
+                    document.getElementById('demo-key').textContent = trialManager.generateKey();
+                } else {
+                    throw new Error('TrialManager not found');
+                }
+            } catch (error) {
+                log('❌ Error initializing trial system: ' + error.message, 'error');
+                document.getElementById('trial-status').className = 'status error';
+                document.getElementById('trial-status').textContent = 'Trial system failed to load: ' + error.message;
+            }
+        }
+
+        function updateTrialDisplay() {
+            if (!trialManager) return;
+
+            const status = trialManager.getTrialStatus();
+            const remainingDays = trialManager.getRemainingDays();
+            const isValid = trialManager.isTrialValid();
+            const usageStats = trialManager.getUsageStats();
+
+            document.getElementById('trial-status').className = status.isExpired ? 'status error' : 
+                                                               status.isActivated ? 'status success' : 'status info';
+            document.getElementById('trial-status').textContent = status.message;
+
+            document.getElementById('trial-details').innerHTML = `
+                <h3>Trial Details</h3>
+                <p><strong>Status:</strong> ${status.isActivated ? 'Activated' : status.isExpired ? 'Expired' : 'Active'}</p>
+                <p><strong>Remaining Days:</strong> ${remainingDays === -1 ? 'Unlimited' : remainingDays}</p>
+                <p><strong>Trial Valid:</strong> ${isValid ? 'Yes' : 'No'}</p>
+                ${usageStats ? `
+                    <p><strong>Days Since Start:</strong> ${usageStats.daysSinceStart}</p>
+                    <p><strong>Sessions Used:</strong> ${usageStats.sessionsUsed}</p>
+                    <p><strong>First Run:</strong> ${new Date(usageStats.firstRunDate).toLocaleDateString()}</p>
+                ` : ''}
+            `;
+
+            log(`Trial Status: ${status.message}`, status.isExpired ? 'error' : 'success');
+        }
+
+        function checkTrialStatus() {
+            if (!trialManager) {
+                log('❌ Trial manager not initialized', 'error');
+                return;
+            }
+            updateTrialDisplay();
+            log('📊 Trial status checked', 'info');
+        }
+
+        function showWelcomeDialog() {
+            if (!trialManager) {
+                log('❌ Trial manager not initialized', 'error');
+                return;
+            }
+            trialManager.showWelcomeTrialDialog();
+            log('👋 Welcome dialog shown', 'info');
+        }
+
+        function showActivationDialog() {
+            if (!trialManager) {
+                log('❌ Trial manager not initialized', 'error');
+                return;
+            }
+            trialManager.showActivationDialog();
+            log('🔑 Activation dialog shown', 'info');
+        }
+
+        function showTrialDialog() {
+            if (!trialManager) {
+                log('❌ Trial manager not initialized', 'error');
+                return;
+            }
+            const status = trialManager.getTrialStatus();
+            trialManager.showTrialDialog(status);
+            log('⏰ Trial reminder dialog shown', 'info');
+        }
+
+        function addTrialIndicator() {
+            if (!trialManager) {
+                log('❌ Trial manager not initialized', 'error');
+                return;
+            }
+            
+            // Remove existing indicator if present
+            const existing = document.getElementById('trial-indicator');
+            if (existing) existing.remove();
+            
+            trialManager.addTrialIndicator();
+            log('📍 Trial indicator added', 'info');
+        }
+
+        function testActivation() {
+            if (!trialManager) {
+                log('❌ Trial manager not initialized', 'error');
+                return;
+            }
+            
+            const demoKey = trialManager.generateKey();
+            const result = trialManager.activateLicense(demoKey);
+            
+            if (result) {
+                log('✅ Demo activation successful!', 'success');
+                updateTrialDisplay();
+            } else {
+                log('❌ Demo activation failed', 'error');
+            }
+        }
+
+        function testExportFeature() {
+            if (!trialManager) {
+                log('❌ Trial manager not initialized', 'error');
+                return;
+            }
+            
+            const status = trialManager.getTrialStatus();
+            if (status.isExpired) {
+                log('🚫 Export feature would be disabled (trial expired)', 'error');
+            } else {
+                log('✅ Export feature would be available', 'success');
+            }
+        }
+
+        function simulateTrialExpiry() {
+            if (!trialManager) {
+                log('❌ Trial manager not initialized', 'error');
+                return;
+            }
+            
+            // Manually set trial start date to 15 days ago
+            const trialInfo = trialManager.getTrialInfo();
+            if (trialInfo) {
+                trialInfo.startDate = new Date().getTime() - (15 * 24 * 60 * 60 * 1000);
+                trialManager.saveTrialInfo(trialInfo);
+                updateTrialDisplay();
+                log('⏰ Trial expiry simulated (set start date to 15 days ago)', 'info');
+            }
+        }
+
+        function restoreTrial() {
+            if (!trialManager) {
+                log('❌ Trial manager not initialized', 'error');
+                return;
+            }
+            
+            // Reset trial to current date
+            const trialInfo = trialManager.getTrialInfo();
+            if (trialInfo) {
+                trialInfo.startDate = new Date().getTime();
+                trialInfo.isActivated = false;
+                trialManager.saveTrialInfo(trialInfo);
+                updateTrialDisplay();
+                log('🔄 Trial restored to current date', 'success');
+            }
+        }
+
+        function clearTrialData() {
+            localStorage.removeItem('daybook_trial_info');
+            log('🗑️ Trial data cleared from localStorage', 'info');
+            
+            // Reinitialize
+            setTimeout(() => {
+                initializeTrialSystem();
+                log('🔄 Trial system reinitialized', 'info');
+            }, 500);
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🚀 Test page loaded', 'info');
+            initializeTrialSystem();
+        });
+
+        // Override console.log to also show in our output
+        const originalConsoleLog = console.log;
+        console.log = function(...args) {
+            originalConsoleLog.apply(console, args);
+            // Don't log our own log messages to avoid infinite loop
+            if (!args[0]?.toString().includes('[')) {
+                log('Console: ' + args.join(' '), 'info');
+            }
+        };
+
+        const originalConsoleError = console.error;
+        console.error = function(...args) {
+            originalConsoleError.apply(console, args);
+            log('Error: ' + args.join(' '), 'error');
+        };
+    </script>
+</body>
+</html>

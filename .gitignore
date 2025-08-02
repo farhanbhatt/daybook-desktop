@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+dist/
+build/
+release/
+
+# Release packages (will be uploaded separately to GitHub Releases)
+*.exe
+*.zip
+*.msi
+*.dmg
+*.AppImage
+
+# Electron build directories
+Daybook-Desktop-Release-Package/
+Daybook-Desktop-Trial-v1.0.1/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+logs/
+*.log
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Backup files
+*.backup
+*.bak

@@ -1,0 +1,48 @@
+headersOrigin = "config"
+redirectsOrigin = "config"
+plugins = []
+
+[functions]
+
+[functions."*"]
+
+[build]
+publish = "C:\\Users\\farhan\\Desktop\\modern_daybook"
+publishOrigin = "config"
+commandOrigin = "config"
+command = "echo 'Static files ready'"
+
+[build.environment]
+
+[build.processing]
+
+[build.processing.css]
+
+[build.processing.html]
+
+[build.processing.images]
+
+[build.processing.js]
+
+[build.services]
+
+[[headers]]
+for = "/update.json"
+
+[headers.values]
+Access-Control-Allow-Origin = "*"
+Access-Control-Allow-Methods = "GET"
+Access-Control-Allow-Headers = "Content-Type"
+Cache-Control = "no-cache"
+
+[[redirects]]
+from = "/api/update/check"
+to = "/update.json"
+status = 200.0
+force = false
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]

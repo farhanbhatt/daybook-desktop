@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Library Test</title>
+</head>
+<body>
+    <h1>PDF Library Test</h1>
+    <button id="testBtn">Test PDF Generation</button>
+    <div id="output"></div>
+
+    <script src="libs/jspdf.umd.min.js"></script>
+    <script src="libs/jspdf.plugin.autotable.min.js"></script>
+    <script>
+        console.log('Scripts loaded');
+        console.log('window.jsPDF:', window.jsPDF);
+        console.log('typeof window.jsPDF:', typeof window.jsPDF);
+
+        document.getElementById('testBtn').addEventListener('click', function() {
+            const output = document.getElementById('output');
+            
+            try {
+                console.log('Testing PDF generation...');
+                
+                if (typeof window.jsPDF === 'undefined') {
+                    output.innerHTML = '<p style="color: red;">ERROR: jsPDF library not loaded!</p>';
+                    console.error('jsPDF library not loaded');
+                    return;
+                }
+
+                const { jsPDF } = window.jsPDF;
+                console.log('jsPDF constructor:', jsPDF);
+                
+                const doc = new jsPDF();
+                doc.text('Hello World!', 20, 20);
+                
+                // Try to save the PDF
+                doc.save('test.pdf');
+                
+                output.innerHTML = '<p style="color: green;">SUCCESS: PDF generated and downloaded!</p>';
+                console.log('PDF generated successfully');
+                
+            } catch (error) {
+                output.innerHTML = '<p style="color: red;">ERROR: ' + error.message + '</p>';
+                console.error('PDF generation error:', error);
+            }
+        });
+
+        // Also test on page load
+        window.addEventListener('load', function() {
+            console.log('Page loaded - checking libraries again:');
+            console.log('window.jsPDF available:', typeof window.jsPDF !== 'undefined');
+            
+            if (typeof window.jsPDF !== 'undefined') {
+                console.log('jsPDF object structure:', Object.keys(window.jsPDF));
+            }
+        });
+    </script>
+</body>
+</html>
