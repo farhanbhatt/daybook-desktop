@@ -3,12 +3,9 @@
   "releaseDate": "2025-08-02",
   "downloadUrl": "https://github.com/farhanbhatt/daybook-desktop/releases/download/v1.0.3/Daybook.Desktop.Setup.1.0.3.exe",
   "releaseNotes": [
-    "Latest update available",
-    "Bug fixes and performance improvements",
-    "Enhanced PDF export functionality",
-    "Better error handling",
-    "UI/UX improvements"
+    "Released on 2025-08-02",
+    "Includes new features and fixes"
   ],
-  "mandatory": false,
+  "mandatory": true,
   "minVersion": "1.0.0"
 }
